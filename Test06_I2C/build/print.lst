@@ -1,0 +1,187 @@
+ARM GAS  /tmp/ccL3PIdQ.s 			page 1
+
+
+   1              		.syntax unified
+   2              		.cpu cortex-m4
+   3              		.eabi_attribute 27, 1
+   4              		.eabi_attribute 28, 1
+   5              		.fpu fpv4-sp-d16
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.thumb
+  16              		.syntax unified
+  17              		.file	"print.c"
+  18              		.text
+  19              	.Ltext0:
+  20              		.cfi_sections	.debug_frame
+  21              		.section	.text.uart_getc,"ax",%progbits
+  22              		.align	2
+  23              		.global	uart_getc
+  24              		.thumb
+  25              		.thumb_func
+  27              	uart_getc:
+  28              	.LFB123:
+  29              		.file 1 "util/print.c"
+   1:util/print.c  **** #include"print.h"
+   2:util/print.c  **** 
+   3:util/print.c  **** uint8_t uart_getc(UART_HandleTypeDef *huart){
+  30              		.loc 1 3 0
+  31              		.cfi_startproc
+  32              		@ args = 0, pretend = 0, frame = 8
+  33              		@ frame_needed = 0, uses_anonymous_args = 0
+  34              	.LVL0:
+  35 0000 00B5     		push	{lr}
+  36              	.LCFI0:
+  37              		.cfi_def_cfa_offset 4
+  38              		.cfi_offset 14, -4
+  39 0002 83B0     		sub	sp, sp, #12
+  40              	.LCFI1:
+  41              		.cfi_def_cfa_offset 16
+   4:util/print.c  **** 	char buf[1];
+   5:util/print.c  **** 	HAL_UART_Receive(huart,(uint8_t *)buf,sizeof(buf),0xffff);
+  42              		.loc 1 5 0
+  43 0004 4FF6FF73 		movw	r3, #65535
+  44 0008 0122     		movs	r2, #1
+  45 000a 01A9     		add	r1, sp, #4
+  46 000c FFF7FEFF 		bl	HAL_UART_Receive
+  47              	.LVL1:
+   6:util/print.c  **** 	return (uint8_t)buf[0];
+   7:util/print.c  **** }
+  48              		.loc 1 7 0
+  49 0010 9DF80400 		ldrb	r0, [sp, #4]	@ zero_extendqisi2
+  50 0014 03B0     		add	sp, sp, #12
+  51              	.LCFI2:
+ARM GAS  /tmp/ccL3PIdQ.s 			page 2
+
+
+  52              		.cfi_def_cfa_offset 4
+  53              		@ sp needed
+  54 0016 5DF804FB 		ldr	pc, [sp], #4
+  55              		.cfi_endproc
+  56              	.LFE123:
+  58 001a 00BF     		.section	.text.uart_putc,"ax",%progbits
+  59              		.align	2
+  60              		.global	uart_putc
+  61              		.thumb
+  62              		.thumb_func
+  64              	uart_putc:
+  65              	.LFB124:
+   8:util/print.c  **** 
+   9:util/print.c  **** uint8_t uart_putc(UART_HandleTypeDef *huart,uint8_t c){
+  66              		.loc 1 9 0
+  67              		.cfi_startproc
+  68              		@ args = 0, pretend = 0, frame = 8
+  69              		@ frame_needed = 0, uses_anonymous_args = 0
+  70              	.LVL2:
+  71 0000 10B5     		push	{r4, lr}
+  72              	.LCFI3:
+  73              		.cfi_def_cfa_offset 8
+  74              		.cfi_offset 4, -8
+  75              		.cfi_offset 14, -4
+  76 0002 82B0     		sub	sp, sp, #8
+  77              	.LCFI4:
+  78              		.cfi_def_cfa_offset 16
+  10:util/print.c  **** 	char buf[1];
+  11:util/print.c  **** 	buf[0] = c;
+  79              		.loc 1 11 0
+  80 0004 02AC     		add	r4, sp, #8
+  81 0006 04F8041D 		strb	r1, [r4, #-4]!
+  12:util/print.c  **** 	HAL_UART_Transmit(huart,(uint8_t *)buf,sizeof(buf),0xffff);
+  82              		.loc 1 12 0
+  83 000a 4FF6FF73 		movw	r3, #65535
+  84 000e 0122     		movs	r2, #1
+  85 0010 2146     		mov	r1, r4
+  86              	.LVL3:
+  87 0012 FFF7FEFF 		bl	HAL_UART_Transmit
+  88              	.LVL4:
+  13:util/print.c  **** }
+  89              		.loc 1 13 0
+  90 0016 02B0     		add	sp, sp, #8
+  91              	.LCFI5:
+  92              		.cfi_def_cfa_offset 8
+  93              		@ sp needed
+  94 0018 10BD     		pop	{r4, pc}
+  95              		.cfi_endproc
+  96              	.LFE124:
+  98 001a 00BF     		.section	.text.uart_puts,"ax",%progbits
+  99              		.align	2
+ 100              		.global	uart_puts
+ 101              		.thumb
+ 102              		.thumb_func
+ 104              	uart_puts:
+ 105              	.LFB125:
+  14:util/print.c  **** 
+ARM GAS  /tmp/ccL3PIdQ.s 			page 3
+
+
+  15:util/print.c  **** void uart_puts(UART_HandleTypeDef *huart,char *str){
+ 106              		.loc 1 15 0
+ 107              		.cfi_startproc
+ 108              		@ args = 0, pretend = 0, frame = 0
+ 109              		@ frame_needed = 0, uses_anonymous_args = 0
+ 110              	.LVL5:
+ 111 0000 38B5     		push	{r3, r4, r5, lr}
+ 112              	.LCFI6:
+ 113              		.cfi_def_cfa_offset 16
+ 114              		.cfi_offset 3, -16
+ 115              		.cfi_offset 4, -12
+ 116              		.cfi_offset 5, -8
+ 117              		.cfi_offset 14, -4
+ 118 0002 0546     		mov	r5, r0
+ 119 0004 0C46     		mov	r4, r1
+  16:util/print.c  **** 	while(*str){
+ 120              		.loc 1 16 0
+ 121 0006 03E0     		b	.L6
+ 122              	.LVL6:
+ 123              	.L7:
+  17:util/print.c  **** 		uart_putc(huart,*str++);
+ 124              		.loc 1 17 0
+ 125 0008 0134     		adds	r4, r4, #1
+ 126              	.LVL7:
+ 127 000a 2846     		mov	r0, r5
+ 128 000c FFF7FEFF 		bl	uart_putc
+ 129              	.LVL8:
+ 130              	.L6:
+  16:util/print.c  **** 	while(*str){
+ 131              		.loc 1 16 0
+ 132 0010 2178     		ldrb	r1, [r4]	@ zero_extendqisi2
+ 133 0012 0029     		cmp	r1, #0
+ 134 0014 F8D1     		bne	.L7
+  18:util/print.c  **** 	}
+  19:util/print.c  **** }
+ 135              		.loc 1 19 0
+ 136 0016 38BD     		pop	{r3, r4, r5, pc}
+ 137              		.cfi_endproc
+ 138              	.LFE125:
+ 140              		.text
+ 141              	.Letext0:
+ 142              		.file 2 "/usr/local/gcc-arm-none-eabi-5_2-2015q4/arm-none-eabi/include/machine/_default_types.h"
+ 143              		.file 3 "/usr/local/gcc-arm-none-eabi-5_2-2015q4/arm-none-eabi/include/sys/_stdint.h"
+ 144              		.file 4 "Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f401xe.h"
+ 145              		.file 5 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_def.h"
+ 146              		.file 6 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_dma.h"
+ 147              		.file 7 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h"
+ 148              		.file 8 "Drivers/CMSIS/Include/core_cm4.h"
+ARM GAS  /tmp/ccL3PIdQ.s 			page 4
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 print.c
+     /tmp/ccL3PIdQ.s:22     .text.uart_getc:00000000 $t
+     /tmp/ccL3PIdQ.s:27     .text.uart_getc:00000000 uart_getc
+     /tmp/ccL3PIdQ.s:59     .text.uart_putc:00000000 $t
+     /tmp/ccL3PIdQ.s:64     .text.uart_putc:00000000 uart_putc
+     /tmp/ccL3PIdQ.s:99     .text.uart_puts:00000000 $t
+     /tmp/ccL3PIdQ.s:104    .text.uart_puts:00000000 uart_puts
+                     .debug_frame:00000010 $d
+
+UNDEFINED SYMBOLS
+HAL_UART_Receive
+HAL_UART_Transmit

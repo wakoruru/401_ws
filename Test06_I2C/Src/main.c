@@ -61,6 +61,7 @@ static void MX_I2C1_Init(void);
 static void MX_USART2_UART_Init(void);
 
 enum{
+	WHO_AM_I=0x0f,
 	CTRL1_XL=0x10,
 	CTRL2_G=0x11,
 	CTRL3_C=0x12,
@@ -70,9 +71,24 @@ enum{
 	CTRL7_G=0x16,
 	CTRL8_XL=0x17,
 	CTRL9_XL=0x18,
-	CTRL10_C=0x19
+	CTRL10_C=0x19,
+	OUT_TEMP_L=0x20,
+	OUT_TEMP_H=0x21,
+	OUTX_L_G=0x22,
+	OUTX_H_G=0x23,
+	OUTY_L_G=0x24,
+	OUTY_H_G=0x25,
+	OUTZ_L_G=0x26,
+	OUTZ_H_G=0x27,
+	OUTX_L_XL=0x28,
+	OUTX_H_XL=0x29,
+	OUTY_L_XL=0x2A,
+	OUTY_H_XL=0x2B,
+	OUTZ_L_XL=0x2C,
+	OUTZ_H_XL=0x2D
 };
 void USR_LSM6DSL_Set_Data(I2C_HandleTypeDef *hi2c,uint8_t add,uint8_t dat);
+uint8_t USR_LSM6DSL_Get_Data(I2C_HandleTypeDef *hi2c,uint8_t add);
 void USR_LSM6DSL_XL_Read_ALL(I2C_HandleTypeDef *hi2c,int16_t *dat);
 void USR_LSM6DSL_GY_Read_ALL(I2C_HandleTypeDef *hi2c,int16_t *dat);
 /* USER CODE BEGIN PFP */
@@ -126,7 +142,8 @@ int main(void)
 //	xprintf("Hello,STM%d!\r\n",32);
 
 	//LSM6DSL(ADD:0b1101011<<1)
-	HAL_I2C_Mem_Read(&hi2c1,0xD6,0x0f,I2C_MEMADD_SIZE_8BIT,&tmp,1,10);
+//	HAL_I2C_Mem_Read(&hi2c1,0xD6,0x0f,I2C_MEMADD_SIZE_8BIT,&tmp,1,10);
+	tmp=USR_LSM6DSL_Get_Data(&hi2c1,WHO_AM_I);
 	USR_LSM6DSL_Set_Data(&hi2c1,CTRL1_XL,0b10000101);
 	USR_LSM6DSL_Set_Data(&hi2c1,CTRL2_G,0b01100000);
 	USR_LSM6DSL_Set_Data(&hi2c1,CTRL4_C,0b00000010);
@@ -324,35 +341,26 @@ static void MX_GPIO_Init(void)
 void USR_LSM6DSL_Set_Data(I2C_HandleTypeDef *hi2c,uint8_t add,uint8_t dat){
 	HAL_I2C_Mem_Write(hi2c,0xD6,add,I2C_MEMADD_SIZE_8BIT,&dat,1,10);
 }
-void USR_LSM6DSL_XL_Read_ALL(I2C_HandleTypeDef *hi2c,int16_t *data){
+uint8_t USR_LSM6DSL_Get_Data(I2C_HandleTypeDef *hi2c,uint8_t add){
 	uint8_t tmp=0;
-	HAL_I2C_Mem_Read(hi2c,0xD6,0x28,I2C_MEMADD_SIZE_8BIT,&tmp,1,10);
-	data[0]=tmp;
-	HAL_I2C_Mem_Read(hi2c,0xD6,0x29,I2C_MEMADD_SIZE_8BIT,&tmp,1,10);
-	data[0]|=tmp<<8;
-	HAL_I2C_Mem_Read(hi2c,0xD6,0x2A,I2C_MEMADD_SIZE_8BIT,&tmp,1,10);
-	data[1]=tmp;
-	HAL_I2C_Mem_Read(hi2c,0xD6,0x2B,I2C_MEMADD_SIZE_8BIT,&tmp,1,10);
-	data[1]|=tmp<<8;
-	HAL_I2C_Mem_Read(hi2c,0xD6,0x2C,I2C_MEMADD_SIZE_8BIT,&tmp,1,10);
-	data[2]=tmp;
-	HAL_I2C_Mem_Read(hi2c,0xD6,0x2D,I2C_MEMADD_SIZE_8BIT,&tmp,1,10);
-	data[2]|=tmp<<8;
+	HAL_I2C_Mem_Read(&hi2c1,0xD6,add,I2C_MEMADD_SIZE_8BIT,&tmp,1,10);
+	return tmp;
+}
+void USR_LSM6DSL_XL_Read_ALL(I2C_HandleTypeDef *hi2c,int16_t *data){
+	data[0] =USR_LSM6DSL_Get_Data(hi2c,OUTX_L_XL);
+	data[0]|=USR_LSM6DSL_Get_Data(hi2c,OUTX_H_XL)<<8;
+	data[1] =USR_LSM6DSL_Get_Data(hi2c,OUTY_L_XL);
+	data[1]|=USR_LSM6DSL_Get_Data(hi2c,OUTY_H_XL)<<8;
+	data[2] =USR_LSM6DSL_Get_Data(hi2c,OUTZ_L_XL);
+	data[2]|=USR_LSM6DSL_Get_Data(hi2c,OUTZ_H_XL)<<8;
 }
 void USR_LSM6DSL_GY_Read_ALL(I2C_HandleTypeDef *hi2c,int16_t *data){
-	uint8_t tmp=0;
-	HAL_I2C_Mem_Read(hi2c,0xD6,0x22,I2C_MEMADD_SIZE_8BIT,&tmp,1,10);
-	data[0]=tmp;
-	HAL_I2C_Mem_Read(hi2c,0xD6,0x23,I2C_MEMADD_SIZE_8BIT,&tmp,1,10);
-	data[0]|=tmp<<8;
-	HAL_I2C_Mem_Read(hi2c,0xD6,0x24,I2C_MEMADD_SIZE_8BIT,&tmp,1,10);
-	data[1]=tmp;
-	HAL_I2C_Mem_Read(hi2c,0xD6,0x25,I2C_MEMADD_SIZE_8BIT,&tmp,1,10);
-	data[1]|=tmp<<8;
-	HAL_I2C_Mem_Read(hi2c,0xD6,0x26,I2C_MEMADD_SIZE_8BIT,&tmp,1,10);
-	data[2]=tmp;
-	HAL_I2C_Mem_Read(hi2c,0xD6,0x27,I2C_MEMADD_SIZE_8BIT,&tmp,1,10);
-	data[2]|=tmp<<8;
+	data[0] =USR_LSM6DSL_Get_Data(hi2c,OUTX_L_G);
+	data[0]|=USR_LSM6DSL_Get_Data(hi2c,OUTX_H_G)<<8;
+	data[1] =USR_LSM6DSL_Get_Data(hi2c,OUTY_L_G);
+	data[1]|=USR_LSM6DSL_Get_Data(hi2c,OUTY_H_G)<<8;
+	data[2] =USR_LSM6DSL_Get_Data(hi2c,OUTZ_L_G);
+	data[2]|=USR_LSM6DSL_Get_Data(hi2c,OUTZ_H_G)<<8;
 }
 /* USER CODE END 4 */
 
